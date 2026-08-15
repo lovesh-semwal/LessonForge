@@ -24,11 +24,13 @@ app.get('/', (req, res) => {
 
 // Generate a lesson plan (does NOT save automatically)
 app.post('/api/generate-lesson', async (req, res) => {
-  const { subject, grade, topic, duration } = req.body;
+  const { subject, grade, topic, duration, language } = req.body;
 
   if (!subject || !grade || !topic) {
     return res.status(400).json({ error: 'Subject, grade, and topic are required.' });
   }
+
+  const outputLanguage = language && language !== 'English' ? language : 'English';
 
   const prompt = `You are an expert curriculum designer helping a teacher prepare a lesson.
 
@@ -37,6 +39,8 @@ Create a structured lesson plan for:
 - Grade level: ${grade}
 - Topic: ${topic}
 - Class duration: ${duration} minutes
+
+Write ALL text content (objectives, materials, activities, assessment) in ${outputLanguage}. If ${outputLanguage} is not English, still keep the JSON keys themselves in English exactly as shown below — only the VALUES should be in ${outputLanguage}.
 
 Respond ONLY with valid JSON (no markdown, no code fences, no extra text) in exactly this shape:
 {

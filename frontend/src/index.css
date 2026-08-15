@@ -3,8 +3,40 @@
 
 @import "tailwindcss";
 
+:root {
+  --bg: #F5F1E6;
+  --surface: #FFFFFF;
+  --surface-alt: #F5F1E6;
+  --input-bg: #FBF9F2;
+  --border: #E2DBC8;
+  --input-border: #D8D2BF;
+  --text: #1C2B24;
+  --text-muted: #5C6B62;
+  --label-muted: #8A7B4E;
+  --danger: #B3452C;
+  --danger-bg: #FBEAE5;
+  --danger-border: #E8B4A5;
+}
+
+[data-theme="dark"] {
+  --bg: #14201B;
+  --surface: #1C2B24;
+  --surface-alt: #223129;
+  --input-bg: #1A2822;
+  --border: #2E4038;
+  --input-border: #344A40;
+  --text: #EDE7D9;
+  --text-muted: #9FB0A6;
+  --label-muted: #C7A968;
+  --danger: #E8846A;
+  --danger-bg: #3A241D;
+  --danger-border: #5C3A2C;
+}
+
 body {
   font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  transition: background-color 0.3s ease;
 }
 
 .font-serif {

@@ -1,105 +1,122 @@
 import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
-const SUBJECTS = ["Mathematics", "Science", "English", "Social Studies", "Computer Science"];
-const GRADES = ["Grade 3", "Grade 5", "Grade 7", "Grade 9", "Grade 11"];
+const SUBJECTS = [
+  "Mathematics",
+  "Science",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  "English",
+  "Hindi",
+  "Social Studies",
+  "History",
+  "Geography",
+  "Civics",
+  "Economics",
+  "Computer Science",
+  "Environmental Science",
+  "Sanskrit",
+  "Art & Craft",
+  "Physical Education",
+];
+const GRADES = Array.from({ length: 12 }, (_, i) => `Grade ${i + 1}`);
+const LANGUAGES = ["English", "Hindi", "Marathi", "Tamil", "Telugu", "Bengali"];
 const API_URL = "http://localhost:5000";
 
-function exportLessonPDF(lesson) {
-  const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.width;
-  const margin = 14;
-  const contentWidth = pageWidth - margin * 2;
-  let y;
+async function exportLessonPDF(lesson) {
+  const esc = (s) => (s || "").toString();
 
-  doc.setFillColor(31, 59, 49);
-  doc.rect(0, 0, pageWidth, 40, "F");
-  doc.setTextColor(217, 164, 65);
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "bold");
-  doc.text("OMNIKON 2026 · LESSONFORGE", margin, 12);
-  doc.setTextColor(245, 241, 230);
-  doc.setFontSize(20);
-  doc.text(lesson.topic || "Lesson Plan", margin, 25);
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(201, 214, 205);
-  doc.text(`${lesson.subject} · ${lesson.grade} · ${lesson.duration} min`, margin, 33);
+  const objectivesHTML = (lesson.objectives || [])
+    .map((o) => `<li style="display:flex;gap:8px;margin-bottom:6px;"><span style="color:#1F3B31;">✓</span><span>${esc(o)}</span></li>`)
+    .join("");
 
-  y = 52;
+  const materialsHTML = (lesson.materials || [])
+    .map((m) => `<span style="display:inline-block;background:#F5F1E6;border:1px solid #E2DBC8;border-radius:9999px;padding:4px 12px;margin:0 6px 6px 0;font-size:13px;">${esc(m)}</span>`)
+    .join("");
 
-  const checkPageBreak = (needed) => {
-    if (y + needed > 280) {
-      doc.addPage();
-      y = 20;
+  const activitiesHTML = (lesson.activities || [])
+    .map(
+      (a) => `
+      <div style="display:flex;gap:16px;margin-bottom:18px;">
+        <div style="flex-shrink:0;width:64px;height:64px;border-radius:9999px;background:#1F3B31;color:#F5F1E6;font-size:10px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;padding:4px;">${esc(a.time)}</div>
+        <div style="padding-top:14px;">${esc(a.activity)}</div>
+      </div>`
+    )
+    .join("");
+
+  const container = document.createElement("div");
+  container.style.position = "fixed";
+  container.style.top = "-10000px";
+  container.style.left = "0";
+  container.style.width = "800px";
+  container.style.background = "#FFFFFF";
+  container.style.fontFamily = "'Inter', 'Noto Sans', sans-serif";
+  container.style.color = "#1C2B24";
+
+  container.innerHTML = `
+    <div style="background:#1F3B31;color:#F5F1E6;padding:28px 36px;">
+      <div style="color:#D9A441;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">OMNIKON 2026 · LESSONFORGE</div>
+      <div style="font-size:32px;font-weight:600;text-transform:capitalize;">${esc(lesson.topic)}</div>
+      <div style="color:#C9D6CD;font-size:13px;text-transform:uppercase;letter-spacing:1px;margin-top:6px;">${esc(lesson.subject)} · ${esc(lesson.grade)} · ${esc(lesson.duration)} min</div>
+    </div>
+    <div style="padding:32px 36px;">
+      ${lesson.objectives?.length ? `
+        <div style="margin-bottom:24px;">
+          <div style="color:#D9A441;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:10px;">Objectives</div>
+          <ul style="list-style:none;padding:0;margin:0;">${objectivesHTML}</ul>
+        </div>` : ""}
+      ${lesson.materials?.length ? `
+        <div style="margin-bottom:24px;">
+          <div style="color:#D9A441;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:10px;">Materials</div>
+          <div>${materialsHTML}</div>
+        </div>` : ""}
+      ${lesson.activities?.length ? `
+        <div style="margin-bottom:24px;">
+          <div style="color:#D9A441;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:14px;">Activities</div>
+          <div>${activitiesHTML}</div>
+        </div>` : ""}
+      ${lesson.assessment ? `
+        <div style="background:#F5F1E6;border-left:4px solid #D9A441;border-radius:0 6px 6px 0;padding:16px;">
+          <div style="color:#8A7B4E;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:6px;">Assessment</div>
+          <div>${esc(lesson.assessment)}</div>
+        </div>` : ""}
+    </div>
+  `;
+
+  document.body.appendChild(container);
+
+  try {
+    const canvas = await html2canvas(container, { scale: 2, useCORS: true, backgroundColor: "#FFFFFF" });
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pdfWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pdfHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
     }
-  };
 
-  const sectionHeader = (title) => {
-    checkPageBreak(12);
-    doc.setTextColor(217, 164, 65);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text(title.toUpperCase(), margin, y);
-    y += 8;
-  };
-
-  if (lesson.objectives?.length) {
-    sectionHeader("Objectives");
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(28, 43, 36);
-    lesson.objectives.forEach((obj) => {
-      const lines = doc.splitTextToSize(`\u2713  ${obj}`, contentWidth);
-      checkPageBreak(lines.length * 6 + 2);
-      doc.text(lines, margin, y);
-      y += lines.length * 6 + 2;
-    });
-    y += 4;
+    pdf.save(`${(lesson.topic || "lesson-plan").replace(/\s+/g, "-").toLowerCase()}.pdf`);
+  } catch (err) {
+    console.error("PDF export failed:", err);
+    alert("Could not export PDF. Try again.");
+  } finally {
+    document.body.removeChild(container);
   }
-
-  if (lesson.materials?.length) {
-    sectionHeader("Materials");
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(28, 43, 36);
-    const lines = doc.splitTextToSize(lesson.materials.join("   •   "), contentWidth);
-    checkPageBreak(lines.length * 6 + 2);
-    doc.text(lines, margin, y);
-    y += lines.length * 6 + 8;
-  }
-
-  if (lesson.activities?.length) {
-    sectionHeader("Activities");
-    doc.setFontSize(11);
-    lesson.activities.forEach((act) => {
-      checkPageBreak(14);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(31, 59, 49);
-      doc.text(act.time || "", margin, y);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(28, 43, 36);
-      const lines = doc.splitTextToSize(act.activity || "", contentWidth - 35);
-      doc.text(lines, margin + 35, y);
-      y += Math.max(lines.length * 6, 6) + 4;
-    });
-    y += 4;
-  }
-
-  if (lesson.assessment) {
-    sectionHeader("Assessment");
-    const lines = doc.splitTextToSize(lesson.assessment, contentWidth - 6);
-    const boxHeight = lines.length * 6 + 10;
-    checkPageBreak(boxHeight);
-    doc.setFillColor(245, 241, 230);
-    doc.rect(margin, y - 5, contentWidth, boxHeight, "F");
-    doc.setFontSize(11);
-    doc.setTextColor(28, 43, 36);
-    doc.text(lines, margin + 6, y + 2);
-    y += boxHeight + 4;
-  }
-
-  doc.save(`${(lesson.topic || "lesson-plan").replace(/\s+/g, "-").toLowerCase()}.pdf`);
 }
 
 function LessonPlanDetails({ plan }) {
@@ -112,7 +129,7 @@ function LessonPlanDetails({ plan }) {
           </h3>
           <ul className="space-y-1.5">
             {plan.objectives.map((obj, i) => (
-              <li key={i} className="flex gap-2 text-[#1C2B24]">
+              <li key={i} className="flex gap-2 text-[var(--text)]">
                 <span className="text-[#1F3B31] mt-1">✓</span>
                 <span>{obj}</span>
               </li>
@@ -130,7 +147,7 @@ function LessonPlanDetails({ plan }) {
             {plan.materials.map((mat, i) => (
               <span
                 key={i}
-                className="text-sm bg-[#F5F1E6] border border-[#E2DBC8] rounded-full px-3 py-1 text-[#1C2B24]"
+                className="text-sm bg-[var(--surface-alt)] border border-[var(--border)] rounded-full px-3 py-1 text-[var(--text)]"
               >
                 {mat}
               </span>
@@ -148,12 +165,12 @@ function LessonPlanDetails({ plan }) {
             {plan.activities.map((act, i) => (
               <div key={i} className="flex gap-4 relative pb-5 last:pb-0">
                 {i !== plan.activities.length - 1 && (
-                  <span className="absolute left-[27px] top-6 bottom-0 w-px bg-[#E2DBC8]" />
+                  <span className="absolute left-[27px] top-6 bottom-0 w-px bg-[var(--border)]" />
                 )}
                 <span className="shrink-0 w-[56px] h-[56px] rounded-full bg-[#1F3B31] text-[#F5F1E6] font-mono text-[10px] flex items-center justify-center text-center leading-tight px-1">
                   {act.time}
                 </span>
-                <p className="pt-3.5 text-[#1C2B24]">{act.activity}</p>
+                <p className="pt-3.5 text-[var(--text)]">{act.activity}</p>
               </div>
             ))}
           </div>
@@ -161,11 +178,11 @@ function LessonPlanDetails({ plan }) {
       )}
 
       {plan.assessment && (
-        <section className="bg-[#F5F1E6] border-l-4 border-[#D9A441] rounded-r-md p-4">
-          <h3 className="font-mono text-xs uppercase tracking-widest text-[#8A7B4E] mb-1.5">
+        <section className="bg-[var(--surface-alt)] border-l-4 border-[#D9A441] rounded-r-md p-4">
+          <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--label-muted)] mb-1.5">
             Assessment
           </h3>
-          <p className="text-[#1C2B24]">{plan.assessment}</p>
+          <p className="text-[var(--text)]">{plan.assessment}</p>
         </section>
       )}
     </>
@@ -173,7 +190,14 @@ function LessonPlanDetails({ plan }) {
 }
 
 export default function App() {
-  const [form, setForm] = useState({ subject: "", grade: "", topic: "", duration: "40" });
+  const [theme, setTheme] = useState(() => localStorage.getItem("lessonforge-theme") || "light");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("lessonforge-theme", theme);
+  }, [theme]);
+
+  const [form, setForm] = useState({ subject: "", grade: "", topic: "", duration: "40", language: "English" });
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -263,7 +287,7 @@ export default function App() {
   }, [view]);
 
   return (
-    <div className="min-h-screen bg-[#F5F1E6] text-[#1C2B24]">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] transition-colors duration-300">
       <header className="bg-[#1F3B31] text-[#F5F1E6] px-6 py-8 relative overflow-hidden">
         <div className="max-w-3xl mx-auto relative z-10 flex items-start justify-between flex-wrap gap-4">
           <div>
@@ -278,23 +302,32 @@ export default function App() {
             </p>
           </div>
 
-          <div className="flex gap-2 bg-[#16291F] rounded-md p-1">
+          <div className="flex items-center gap-3">
             <button
-              onClick={() => setView("create")}
-              className={`px-3 py-1.5 rounded text-sm font-mono transition ${
-                view === "create" ? "bg-[#D9A441] text-[#1C2B24]" : "text-[#C9D6CD] hover:text-white"
-              }`}
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              aria-label="Toggle theme"
+              className="w-9 h-9 rounded-md bg-[#16291F] text-[#F5F1E6] flex items-center justify-center hover:opacity-80 transition text-base"
             >
-              Create
+              {theme === "light" ? "🌙" : "☀️"}
             </button>
-            <button
-              onClick={() => setView("library")}
-              className={`px-3 py-1.5 rounded text-sm font-mono transition ${
-                view === "library" ? "bg-[#D9A441] text-[#1C2B24]" : "text-[#C9D6CD] hover:text-white"
-              }`}
-            >
-              Library
-            </button>
+            <div className="flex gap-2 bg-[#16291F] rounded-md p-1">
+              <button
+                onClick={() => setView("create")}
+                className={`px-3 py-1.5 rounded text-sm font-mono transition ${
+                  view === "create" ? "bg-[#D9A441] text-[#1C2B24]" : "text-[#C9D6CD] hover:text-white"
+                }`}
+              >
+                Create
+              </button>
+              <button
+                onClick={() => setView("library")}
+                className={`px-3 py-1.5 rounded text-sm font-mono transition ${
+                  view === "library" ? "bg-[#D9A441] text-[#1C2B24]" : "text-[#C9D6CD] hover:text-white"
+                }`}
+              >
+                Library
+              </button>
+            </div>
           </div>
         </div>
         <div className="absolute bottom-0 left-0 w-full h-2 bg-[repeating-linear-gradient(90deg,#D9A441_0px,#D9A441_10px,transparent_10px,transparent_20px)] opacity-60" />
@@ -305,18 +338,18 @@ export default function App() {
           <>
             <form
               onSubmit={handleGenerate}
-              className="bg-white border border-[#E2DBC8] rounded-lg p-6 shadow-sm space-y-5"
+              className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-6 shadow-sm space-y-5 transition-colors duration-300"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-mono uppercase tracking-wide text-[#5C6B62] mb-1">
+                  <label className="block text-sm font-mono uppercase tracking-wide text-[var(--text-muted)] mb-1">
                     Subject
                   </label>
                   <select
                     name="subject"
                     value={form.subject}
                     onChange={handleChange}
-                    className="w-full border border-[#D8D2BF] rounded-md px-3 py-2 bg-[#FBF9F2] focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
+                    className="w-full border border-[var(--input-border)] rounded-md px-3 py-2 bg-[var(--input-bg)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
                   >
                     <option value="">Select subject</option>
                     {SUBJECTS.map((s) => (
@@ -326,14 +359,14 @@ export default function App() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-mono uppercase tracking-wide text-[#5C6B62] mb-1">
+                  <label className="block text-sm font-mono uppercase tracking-wide text-[var(--text-muted)] mb-1">
                     Grade
                   </label>
                   <select
                     name="grade"
                     value={form.grade}
                     onChange={handleChange}
-                    className="w-full border border-[#D8D2BF] rounded-md px-3 py-2 bg-[#FBF9F2] focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
+                    className="w-full border border-[var(--input-border)] rounded-md px-3 py-2 bg-[var(--input-bg)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
                   >
                     <option value="">Select grade</option>
                     {GRADES.map((g) => (
@@ -344,7 +377,7 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block text-sm font-mono uppercase tracking-wide text-[#5C6B62] mb-1">
+                <label className="block text-sm font-mono uppercase tracking-wide text-[var(--text-muted)] mb-1">
                   Topic
                 </label>
                 <input
@@ -353,26 +386,44 @@ export default function App() {
                   value={form.topic}
                   onChange={handleChange}
                   placeholder="e.g. Photosynthesis, Fractions, The French Revolution"
-                  className="w-full border border-[#D8D2BF] rounded-md px-3 py-2 bg-[#FBF9F2] focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
+                  className="w-full border border-[var(--input-border)] rounded-md px-3 py-2 bg-[var(--input-bg)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-mono uppercase tracking-wide text-[#5C6B62] mb-1">
-                  Class duration (minutes)
-                </label>
-                <input
-                  type="number"
-                  name="duration"
-                  value={form.duration}
-                  onChange={handleChange}
-                  min="15"
-                  max="120"
-                  className="w-32 border border-[#D8D2BF] rounded-md px-3 py-2 bg-[#FBF9F2] focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-mono uppercase tracking-wide text-[var(--text-muted)] mb-1">
+                    Class duration (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    name="duration"
+                    value={form.duration}
+                    onChange={handleChange}
+                    min="15"
+                    max="120"
+                    className="w-full border border-[var(--input-border)] rounded-md px-3 py-2 bg-[var(--input-bg)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-mono uppercase tracking-wide text-[var(--text-muted)] mb-1">
+                    Output language
+                  </label>
+                  <select
+                    name="language"
+                    value={form.language}
+                    onChange={handleChange}
+                    className="w-full border border-[var(--input-border)] rounded-md px-3 py-2 bg-[var(--input-bg)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
+                  >
+                    {LANGUAGES.map((l) => (
+                      <option key={l} value={l}>{l}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              {error && <p className="text-sm text-[#B3452C] font-medium">{error}</p>}
+              {error && <p className="text-sm text-[var(--danger)] font-medium">{error}</p>}
 
               <button
                 type="submit"
@@ -384,18 +435,18 @@ export default function App() {
             </form>
 
             {plan && (
-              <div className="mt-8 bg-white border border-[#E2DBC8] rounded-lg p-6 md:p-8 shadow-sm">
-                <div className="mb-6 pb-4 border-b-2 border-dashed border-[#D8D2BF] flex items-start justify-between gap-4 flex-wrap">
+              <div className="mt-8 bg-[var(--surface)] border border-[var(--border)] rounded-lg p-6 md:p-8 shadow-sm transition-colors duration-300">
+                <div className="mb-6 pb-4 border-b-2 border-dashed border-[var(--input-border)] flex items-start justify-between gap-4 flex-wrap">
                   <div>
                     <h2 className="font-serif text-3xl mb-1 capitalize">{form.topic}</h2>
-                    <p className="text-sm text-[#8A7B4E] font-mono uppercase tracking-wide">
+                    <p className="text-sm text-[var(--label-muted)] font-mono uppercase tracking-wide">
                       {form.subject} · {form.grade} · {form.duration} min
                     </p>
                   </div>
                   <div className="flex gap-2 shrink-0">
                     <button
                       onClick={handleExportPDF}
-                      className="bg-white border border-[#1F3B31] text-[#1F3B31] px-4 py-2 rounded-md text-sm font-medium hover:bg-[#F5F1E6] transition"
+                      className="bg-[var(--surface)] border border-[#1F3B31] text-[#1F3B31] px-4 py-2 rounded-md text-sm font-medium hover:bg-[var(--surface-alt)] transition"
                     >
                       Export PDF
                     </button>
@@ -424,14 +475,14 @@ function LibraryView({ library, loading, onDelete }) {
   const [expandedId, setExpandedId] = useState(null);
 
   if (loading) {
-    return <p className="text-center text-[#5C6B62] font-mono py-12">Loading saved plans…</p>;
+    return <p className="text-center text-[var(--text-muted)] font-mono py-12">Loading saved plans…</p>;
   }
 
   if (library.length === 0) {
     return (
-      <div className="text-center py-16 bg-white border border-[#E2DBC8] rounded-lg">
-        <p className="text-[#5C6B62]">No saved lesson plans yet.</p>
-        <p className="text-sm text-[#8A7B4E] mt-1">Generate a plan and click "Save to library".</p>
+      <div className="text-center py-16 bg-[var(--surface)] border border-[var(--border)] rounded-lg transition-colors duration-300">
+        <p className="text-[var(--text-muted)]">No saved lesson plans yet.</p>
+        <p className="text-sm text-[var(--label-muted)] mt-1">Generate a plan and click "Save to library".</p>
       </div>
     );
   }
@@ -441,35 +492,35 @@ function LibraryView({ library, loading, onDelete }) {
       {library.map((lesson) => {
         const isOpen = expandedId === lesson._id;
         return (
-          <div key={lesson._id} className="bg-white border border-[#E2DBC8] rounded-lg overflow-hidden">
+          <div key={lesson._id} className="bg-[var(--surface)] border border-[var(--border)] rounded-lg overflow-hidden transition-colors duration-300">
             <button
               onClick={() => setExpandedId(isOpen ? null : lesson._id)}
-              className="w-full text-left p-5 flex items-start justify-between gap-4 hover:bg-[#FBF9F2] transition"
+              className="w-full text-left p-5 flex items-start justify-between gap-4 hover:bg-[var(--surface-alt)] transition"
             >
               <div>
                 <h3 className="font-serif text-xl capitalize">{lesson.topic}</h3>
-                <p className="text-sm text-[#8A7B4E] font-mono uppercase tracking-wide">
+                <p className="text-sm text-[var(--label-muted)] font-mono uppercase tracking-wide">
                   {lesson.subject} · {lesson.grade} · {lesson.duration} min
                 </p>
-                <p className="text-xs text-[#5C6B62] mt-1">
+                <p className="text-xs text-[var(--text-muted)] mt-1">
                   Saved {new Date(lesson.createdAt).toLocaleDateString()}
                 </p>
               </div>
-              <span className="text-[#8A7B4E] shrink-0 mt-1">{isOpen ? "▲" : "▼"}</span>
+              <span className="text-[var(--label-muted)] shrink-0 mt-1">{isOpen ? "▲" : "▼"}</span>
             </button>
 
             {isOpen && (
-              <div className="px-5 pb-5 pt-2 border-t border-[#E2DBC8]">
+              <div className="px-5 pb-5 pt-2 border-t border-[var(--border)]">
                 <div className="flex gap-2 mb-5 justify-end">
                   <button
                     onClick={() => exportLessonPDF(lesson)}
-                    className="bg-white border border-[#1F3B31] text-[#1F3B31] px-3 py-1.5 rounded-md text-sm font-medium hover:bg-[#F5F1E6] transition"
+                    className="bg-[var(--surface)] border border-[#1F3B31] text-[#1F3B31] px-3 py-1.5 rounded-md text-sm font-medium hover:bg-[var(--surface-alt)] transition"
                   >
                     Export PDF
                   </button>
                   <button
                     onClick={() => onDelete(lesson._id)}
-                    className="text-sm text-[#B3452C] hover:underline px-3 py-1.5"
+                    className="text-sm text-[var(--danger)] hover:underline px-3 py-1.5"
                   >
                     Delete
                   </button>
