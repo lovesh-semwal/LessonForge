@@ -129,7 +129,7 @@ function LessonPlanDetails({ plan }) {
           </h3>
           <ul className="space-y-1.5">
             {plan.objectives.map((obj, i) => (
-              <li key={i} className="flex gap-2 text-[var(--text)]">
+              <li key={i} className="flex gap-2 text-(--text)">
                 <span className="text-[#1F3B31] mt-1">✓</span>
                 <span>{obj}</span>
               </li>
@@ -147,7 +147,7 @@ function LessonPlanDetails({ plan }) {
             {plan.materials.map((mat, i) => (
               <span
                 key={i}
-                className="text-sm bg-[var(--surface-alt)] border border-[var(--border)] rounded-full px-3 py-1 text-[var(--text)]"
+                className="text-sm bg-(--surface-alt) border border-(--border) rounded-full px-3 py-1 text-(--text)"
               >
                 {mat}
               </span>
@@ -165,12 +165,12 @@ function LessonPlanDetails({ plan }) {
             {plan.activities.map((act, i) => (
               <div key={i} className="flex gap-4 relative pb-5 last:pb-0">
                 {i !== plan.activities.length - 1 && (
-                  <span className="absolute left-[27px] top-6 bottom-0 w-px bg-[var(--border)]" />
+                  <span className="absolute left-6.75 top-6 bottom-0 w-px bg-(--border)" />
                 )}
-                <span className="shrink-0 w-[56px] h-[56px] rounded-full bg-[#1F3B31] text-[#F5F1E6] font-mono text-[10px] flex items-center justify-center text-center leading-tight px-1">
+                <span className="shrink-0 w-14 h-14 rounded-full bg-[#1F3B31] text-[#F5F1E6] font-mono text-[10px] flex items-center justify-center text-center leading-tight px-1">
                   {act.time}
                 </span>
-                <p className="pt-3.5 text-[var(--text)]">{act.activity}</p>
+                <p className="pt-3.5 text-(--text)">{act.activity}</p>
               </div>
             ))}
           </div>
@@ -178,11 +178,11 @@ function LessonPlanDetails({ plan }) {
       )}
 
       {plan.assessment && (
-        <section className="bg-[var(--surface-alt)] border-l-4 border-[#D9A441] rounded-r-md p-4">
-          <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--label-muted)] mb-1.5">
+        <section className="bg-(--surface-alt) border-l-4 border-[#D9A441] rounded-r-md p-4">
+          <h3 className="font-mono text-xs uppercase tracking-widest text-(--label-muted) mb-1.5">
             Assessment
           </h3>
-          <p className="text-[var(--text)]">{plan.assessment}</p>
+          <p className="text-(--text)">{plan.assessment}</p>
         </section>
       )}
     </>
@@ -287,7 +287,7 @@ export default function App() {
   }, [view]);
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] transition-colors duration-300">
+    <div className="min-h-screen bg-(--bg) text-(--text) transition-colors duration-300">
       <header className="bg-[#1F3B31] text-[#F5F1E6] px-6 py-8 relative overflow-hidden">
         <div className="max-w-3xl mx-auto relative z-10 flex items-start justify-between flex-wrap gap-4">
           <div>
@@ -338,18 +338,18 @@ export default function App() {
           <>
             <form
               onSubmit={handleGenerate}
-              className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-6 shadow-sm space-y-5 transition-colors duration-300"
+              className="bg-(--surface) border border-(--border) rounded-lg p-6 shadow-sm space-y-5 transition-colors duration-300"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-mono uppercase tracking-wide text-[var(--text-muted)] mb-1">
+                  <label className="block text-sm font-mono uppercase tracking-wide text-(--text-muted) mb-1">
                     Subject
                   </label>
                   <select
                     name="subject"
                     value={form.subject}
                     onChange={handleChange}
-                    className="w-full border border-[var(--input-border)] rounded-md px-3 py-2 bg-[var(--input-bg)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
+                    className="w-full border border-(--input-border) rounded-md px-3 py-2 bg-(--input-bg) text-(--text) focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
                   >
                     <option value="">Select subject</option>
                     {SUBJECTS.map((s) => (
@@ -359,14 +359,14 @@ export default function App() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-mono uppercase tracking-wide text-[var(--text-muted)] mb-1">
+                  <label className="block text-sm font-mono uppercase tracking-wide text-(--text-muted) mb-1">
                     Grade
                   </label>
                   <select
                     name="grade"
                     value={form.grade}
                     onChange={handleChange}
-                    className="w-full border border-[var(--input-border)] rounded-md px-3 py-2 bg-[var(--input-bg)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
+                    className="w-full border border-(--input-border) rounded-md px-3 py-2 bg-(--input-bg) text-(--text) focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
                   >
                     <option value="">Select grade</option>
                     {GRADES.map((g) => (
@@ -377,7 +377,7 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block text-sm font-mono uppercase tracking-wide text-[var(--text-muted)] mb-1">
+                <label className="block text-sm font-mono uppercase tracking-wide text-(--text-muted) mb-1">
                   Topic
                 </label>
                 <input
@@ -386,13 +386,13 @@ export default function App() {
                   value={form.topic}
                   onChange={handleChange}
                   placeholder="e.g. Photosynthesis, Fractions, The French Revolution"
-                  className="w-full border border-[var(--input-border)] rounded-md px-3 py-2 bg-[var(--input-bg)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
+                  className="w-full border border-(--input-border) rounded-md px-3 py-2 bg-(--input-bg) text-(--text) focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-mono uppercase tracking-wide text-[var(--text-muted)] mb-1">
+                  <label className="block text-sm font-mono uppercase tracking-wide text-(--text-muted) mb-1">
                     Class duration (minutes)
                   </label>
                   <input
@@ -402,19 +402,19 @@ export default function App() {
                     onChange={handleChange}
                     min="15"
                     max="120"
-                    className="w-full border border-[var(--input-border)] rounded-md px-3 py-2 bg-[var(--input-bg)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
+                    className="w-full border border-(--input-border) rounded-md px-3 py-2 bg-(--input-bg) text-(--text) focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-mono uppercase tracking-wide text-[var(--text-muted)] mb-1">
+                  <label className="block text-sm font-mono uppercase tracking-wide text-(--text-muted) mb-1">
                     Output language
                   </label>
                   <select
                     name="language"
                     value={form.language}
                     onChange={handleChange}
-                    className="w-full border border-[var(--input-border)] rounded-md px-3 py-2 bg-[var(--input-bg)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
+                    className="w-full border border-(--input-border) rounded-md px-3 py-2 bg-(--input-bg) text-(--text) focus:outline-none focus:ring-2 focus:ring-[#D9A441]"
                   >
                     {LANGUAGES.map((l) => (
                       <option key={l} value={l}>{l}</option>
@@ -423,7 +423,7 @@ export default function App() {
                 </div>
               </div>
 
-              {error && <p className="text-sm text-[var(--danger)] font-medium">{error}</p>}
+              {error && <p className="text-sm text-(--danger) font-medium">{error}</p>}
 
               <button
                 type="submit"
@@ -435,18 +435,18 @@ export default function App() {
             </form>
 
             {plan && (
-              <div className="mt-8 bg-[var(--surface)] border border-[var(--border)] rounded-lg p-6 md:p-8 shadow-sm transition-colors duration-300">
-                <div className="mb-6 pb-4 border-b-2 border-dashed border-[var(--input-border)] flex items-start justify-between gap-4 flex-wrap">
+              <div className="mt-8 bg-(--surface) border border-(--border) rounded-lg p-6 md:p-8 shadow-sm transition-colors duration-300">
+                <div className="mb-6 pb-4 border-b-2 border-dashed border-(--input-border) flex items-start justify-between gap-4 flex-wrap">
                   <div>
                     <h2 className="font-serif text-3xl mb-1 capitalize">{form.topic}</h2>
-                    <p className="text-sm text-[var(--label-muted)] font-mono uppercase tracking-wide">
+                    <p className="text-sm text-(--label-muted) font-mono uppercase tracking-wide">
                       {form.subject} · {form.grade} · {form.duration} min
                     </p>
                   </div>
                   <div className="flex gap-2 shrink-0">
                     <button
                       onClick={handleExportPDF}
-                      className="bg-[var(--surface)] border border-[#1F3B31] text-[#1F3B31] px-4 py-2 rounded-md text-sm font-medium hover:bg-[var(--surface-alt)] transition"
+                      className="bg-(--surface) border border-[#1F3B31] text-[#1F3B31] px-4 py-2 rounded-md text-sm font-medium hover:bg-(--surface-alt) transition"
                     >
                       Export PDF
                     </button>
@@ -475,14 +475,14 @@ function LibraryView({ library, loading, onDelete }) {
   const [expandedId, setExpandedId] = useState(null);
 
   if (loading) {
-    return <p className="text-center text-[var(--text-muted)] font-mono py-12">Loading saved plans…</p>;
+    return <p className="text-center text-(--text-muted) font-mono py-12">Loading saved plans…</p>;
   }
 
   if (library.length === 0) {
     return (
-      <div className="text-center py-16 bg-[var(--surface)] border border-[var(--border)] rounded-lg transition-colors duration-300">
-        <p className="text-[var(--text-muted)]">No saved lesson plans yet.</p>
-        <p className="text-sm text-[var(--label-muted)] mt-1">Generate a plan and click "Save to library".</p>
+      <div className="text-center py-16 bg-(--surface) border border-(--border) rounded-lg transition-colors duration-300">
+        <p className="text-(--text-muted)">No saved lesson plans yet.</p>
+        <p className="text-sm text-(--label-muted) mt-1">Generate a plan and click "Save to library".</p>
       </div>
     );
   }
@@ -492,35 +492,35 @@ function LibraryView({ library, loading, onDelete }) {
       {library.map((lesson) => {
         const isOpen = expandedId === lesson._id;
         return (
-          <div key={lesson._id} className="bg-[var(--surface)] border border-[var(--border)] rounded-lg overflow-hidden transition-colors duration-300">
+          <div key={lesson._id} className="bg-(--surface) border border-(--border) rounded-lg overflow-hidden transition-colors duration-300">
             <button
               onClick={() => setExpandedId(isOpen ? null : lesson._id)}
-              className="w-full text-left p-5 flex items-start justify-between gap-4 hover:bg-[var(--surface-alt)] transition"
+              className="w-full text-left p-5 flex items-start justify-between gap-4 hover:bg-(--surface-alt) transition"
             >
               <div>
                 <h3 className="font-serif text-xl capitalize">{lesson.topic}</h3>
-                <p className="text-sm text-[var(--label-muted)] font-mono uppercase tracking-wide">
+                <p className="text-sm text-(--label-muted) font-mono uppercase tracking-wide">
                   {lesson.subject} · {lesson.grade} · {lesson.duration} min
                 </p>
-                <p className="text-xs text-[var(--text-muted)] mt-1">
+                <p className="text-xs text-(--text-muted) mt-1">
                   Saved {new Date(lesson.createdAt).toLocaleDateString()}
                 </p>
               </div>
-              <span className="text-[var(--label-muted)] shrink-0 mt-1">{isOpen ? "▲" : "▼"}</span>
+              <span className="text-(--label-muted) shrink-0 mt-1">{isOpen ? "▲" : "▼"}</span>
             </button>
 
             {isOpen && (
-              <div className="px-5 pb-5 pt-2 border-t border-[var(--border)]">
+              <div className="px-5 pb-5 pt-2 border-t border-(--border)">
                 <div className="flex gap-2 mb-5 justify-end">
                   <button
                     onClick={() => exportLessonPDF(lesson)}
-                    className="bg-[var(--surface)] border border-[#1F3B31] text-[#1F3B31] px-3 py-1.5 rounded-md text-sm font-medium hover:bg-[var(--surface-alt)] transition"
+                    className="bg-(--surface) border border-[#1F3B31] text-[#1F3B31] px-3 py-1.5 rounded-md text-sm font-medium hover:bg-[(--surface-alt) transition"
                   >
                     Export PDF
                   </button>
                   <button
                     onClick={() => onDelete(lesson._id)}
-                    className="text-sm text-[var(--danger)] hover:underline px-3 py-1.5"
+                    className="text-sm text-(--danger) hover:underline px-3 py-1.5"
                   >
                     Delete
                   </button>
