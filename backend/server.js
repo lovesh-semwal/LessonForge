@@ -56,7 +56,7 @@ Respond ONLY with valid JSON (no markdown, no code fences, no extra text) in exa
   try {
     const completion = await groq.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
-      model: 'llama-3.3-70b-versatile',
+      model: 'openai/gpt-oss-20b',
       temperature: 0.7,
     });
 
