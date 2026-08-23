@@ -444,9 +444,9 @@ export default function App() {
                     </p>
                   </div>
                   <div className="flex gap-2 shrink-0">
-                    <button
+                                        <button
                       onClick={handleExportPDF}
-                      className="bg-(--surface) border border-[#1F3B31] text-[#1F3B31] px-4 py-2 rounded-md text-sm font-medium hover:bg-(--surface-alt) transition"
+                      className="bg-(--surface) border border-(--input-border) text-(--text) px-4 py-2 rounded-md text-sm font-medium hover:bg-(--surface-alt) transition"
                     >
                       Export PDF
                     </button>
