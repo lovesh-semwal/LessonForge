@@ -23,7 +23,7 @@ const SUBJECTS = [
 ];
 const GRADES = Array.from({ length: 12 }, (_, i) => `Grade ${i + 1}`);
 const LANGUAGES = ["English", "Hindi", "Marathi", "Tamil", "Telugu", "Bengali"];
-const API_URL = "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 async function exportLessonPDF(lesson) {
   const esc = (s) => (s || "").toString();
